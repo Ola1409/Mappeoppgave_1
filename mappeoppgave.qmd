@@ -1,0 +1,206 @@
+---
+title: "mappeoppgave"
+format: html
+editor: visual
+author: Ola Frivold Berg
+---
+
+## OPPGAVE 1
+
+1a) Inntektsulikhet i et land sier noe om hvordan inntekten er fordelt i landet.
+
+1b) Inntektsulikhetene i samfunnet kan skyldes flere ting. Vi befinner oss nå i en verden hvor en jakter etter å kutte kostnader. Da man fant ut at man kunne flytte produksjonen av varer til et billigere sted, i tillegg til at land etterhvert ikke trengte å produsere alt selv, men spesialisere seg og kjøpe produkter av hverandre, var det mange arbeidsplasser som gikk bort. Inntektsulikhetene kommer i stor grad av at de som tjener høyest tjener mer og de laveste tjener mindre. Det er en stor gruppe i samfunnet som ikke har høyere utdanning. For disse var det greiere å få jobb tidligere, før teknologien kom. Maskiner har nå tatt over store deler av jobbene til denne gruppen av samfunnet og de vet kanskje ikke helt hvor de kan gjøre av seg. Disse faktorene, sammen med deregulering, altså et friere lovverk, høyere konkurranse, mindre trygghet, har ført til inntektsulikheter i samfunnet.
+
+1c) Det finnes ikke en direkte årssakssammenheng mellom inntekt og et bedre liv. Men en høyere inntekt gir større sannsynlighet for å dekke flere og flere menneskelige behov og å kunne forsørge lettere, som kan gi bedre livstilfredshet. Dette kan resultere i et liv som varer lenger og er lettere å leve enn andre. Større inntektsulikhetere innad i et samfunn gir misnøye og mistillit. Når det kan være vanskelig for folk å leve et godt liv uten så mye å rutte med, kan det være enkelt å rette blikket mot de som styrer landet. "... økende mistillit kunne bidra til et mer fragmentert politisk landskap, med økende polarisering der det kan bli vanskeligere å komme til enighet"(NHO 2018). Det kan se ut til at det er hold i dette fordi flere og flere stemmer nasjonalistiske partier ved større inntektsulikheter.
+
+## OPPGAVE 2
+
+*2a) Forklar hvordan gini-koeffisientene beregnes og hvordan de bør tolkes.* P90/P10 måler forholdet mellom det øverste og laveste desilet. Altså de 10% høyeste inntektene mot 10% laveste. S80S20 er på sin side forholdet mellom gjennomsnittet av de 20% høyeste inntektene mot de 20% laveste inntektene.
+
+2b) Man kan stille spørsmål ved populasjonen - liten/stor. Reflekterer ikke de strukturelle endringene eller forholdene i et samfunn.
+
+## OPPGAVE 3
+
+```{r}
+#sletter minnet og laster inn tidyverse
+rm(list=ls())
+library(tidyverse)
+
+#Laster inn datasettet som jeg kaller oecd_n
+url <- "https://raw.githubusercontent.com/uit-sok-1004-h22/uit-sok-1004-h22.github.io/main/data/oecd_data_nor.csv"
+
+oecd_n <- url %>% 
+  read_csv()
+
+```
+
+```{r}
+oecd_n %>% # data
+  filter(MEASURE == c("GINI", "GINIB", "GINIG")) %>% #velger ut gini-koeffisienter med vektor
+  ggplot(aes(x = Year, y=Value, color=MEASURE))+ # definerer akseverdier
+  geom_point()+ # plott som punkt
+  scale_x_continuous(breaks=c(2008, 2010, 2012, 2014, 2016, 2018))+ # unngår at årstall blir gjort om til desimal
+  labs (title = "Gini-koeffisienter for befolkningen i Norge, 2008-2019", y = "Gini-verdi", x= "År")+ # tittel på figuren og benevning av aksene
+  facet_wrap(~ factor (AGE, (levels=c("TOT", "WA", "OLD"))), # lag tre paneler etter alder i fornuftig rekkefølge med passende titler 
+                       labeller = as_labeller(
+                         c("TOT" = "Alle", 
+                           "WA" = "Arbeidere", 
+                           "OLD" = "Pensjonert")))+ # tilpass tittel på panelene
+  theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
+```
+
+3a.1) Hva viser Gini-målene om utviklingen av ulikhet i Norge?
+
+SVAR
+
+3a.2) Hvordan forklarer man eventuelle forskjeller mellom gini-koeffisientene?
+
+SVAR
+
+3a.3) Er det forskjeller i ulikhet mellom arbeidere og pensjonister?
+
+SVAR
+
+3a.4) Hvilken rolle spiller samfunnets institusjoner, for eksempel skatte- og pensjonssystemet, for utjevning mellom arbeidere og pensjonister?
+
+SVAR
+
+## OPPGAVE 3b
+
+```{r}
+oecd_n %>% # data
+  filter(MEASURE == c("P90P10", "S80S20")) %>% #velger ut P90P10 og S80S20
+  ggplot(aes(x = Year, y=Value, color=MEASURE))+ # definerer akseverdier
+  geom_point()+ # plott som punkt
+  scale_x_continuous(breaks=c(2008, 2010, 2012, 2014, 2016, 2018))+ # unngår at årstall blir gjort om til desimal
+  labs (title = "", y = "Gini-verdi", x = "År")+ # tittel på figuren og benevning av aksene
+  facet_wrap(~ factor (AGE, (levels=c("WA", "OLD"))), #endrer til bare arbeidere og pensjonister
+                       labeller = as_labeller(
+                         c("WA" = "Arbeidere", 
+                           "OLD" = "Pensjonert")))+ # tilpass tittel på panelene
+  theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
+```
+
+## OPPGAVE 4
+
+```{r}
+#
+url <- "https://raw.githubusercontent.com/uit-sok-1004-h22/uit-sok-1004-h22.github.io/main/data/skatt_troms_2015.RDS"
+
+skatt_troms_2015 <- url %>%
+  url() %>%
+  gzcon() %>% 
+  readRDS()
+
+#filtrerer for Tromsø
+tromso <-  filter(skatt_troms_2015, kommnr == "1902") %>%
+  mutate(nettolønn = inntekt-skatt) 
+
+#Setter negative verdier til 0
+tromso <- nettolønn
+  nettolønn[nettolønn < 0] <- 0
+  
+```
+
+## OPPGAVE 4a
+
+```{r}
+#Lager figur
+tromso %>%
+ggplot(aes(x = fodt)) +
+  geom_point(aes(y = inntekt), color = "blue") +  #To forskjellige y-verdier
+  geom_point(aes(y = nettolønn), color = "light blue") +
+  ggtitle("Inntekt (Mørkblå) og Nettolønn (Lysblå)") + #Tittel
+  ylab("Verdi") +  #Aksetittel
+  xlab("Fødselsår") +
+  scale_y_continuous(labels = scales::comma) #For å få vanlig heltall på y-akse
+         
+```
+
+## OPPGAVE 4b
+
+```{r}
+df <- tromso %>%
+  select(inntekt) %>% 
+  quantile(probs = seq(0,1, .01), na.rm=TRUE)
+
+
+df <- as_tibble(df)
+
+df <- df %>% 
+  add_column(Persentil=c(0:100))
+
+df <- df %>% 
+  rename(inntekt_fr_skatt=value)
+
+
+df %>% 
+  ggplot(aes(x=Persentil,y=inntekt_fr_skatt/1000)) +
+  geom_col()+
+  labs (title = "Inntektsfordeling i Tromsø 2015 (fr skatt)",
+        y = "Inntekt (1000kr)", x= "Persentil")+
+  theme_minimal()
+```
+
+Tilsvarende figur for inntekt etter skatt:
+
+```{r}
+df <- tromso %>%
+  select(nettolønn) %>% 
+  quantile(probs = seq(0,1, .01), na.rm=TRUE)
+
+
+df <- as_tibble(df)
+
+df <- df %>% 
+  add_column(Persentil=c(0:100))
+
+df <- df %>% 
+  rename(nettolønn=value)
+
+
+df %>% 
+  ggplot(aes(x=Persentil,y=nettolønn/1000)) +
+  geom_col()+
+  labs (title = "Inntektsfordeling i Tromsø 2015 (etter skatt)",
+        y = "Inntekt (1000kr)", x= "Persentil")+
+  theme_minimal()
+```
+
+Fra disse bildene kan en se at det ikke er stor forskjell på forskjell på fordelingen før og etter skatt. Men det er tydelig at det øverste persentilet har fått en tydelig redusering i lønn på grunn av skatt. Det øverste persentilet tjener veldig mye mer enn alle andre persentiler, men bak der er det ganske jevnt og ikke enorme inntektsulikheter. Det hadde nok vært tydeligere ulikheter om en hadde fjernet det øverste persentilet, for det drar stolpeverdien opp så mye at det tilsynelatende ser ut til at de andre persentilene ikke tjener stort.
+
+## OPPGAVE 4c
+
+Før skatt:
+
+```{r}
+#Laster inn pakken gglorenz
+library(gglorenz)
+
+#Filtrerer for Tromsø
+tromso <-filter(skatt_troms_2015, kommnr == "1902")
+
+#Lager figur
+ggplot(tromso, aes(inntekt))+
+  stat_lorenz()+ # tegner Lorenz
+  annotate_ineq(tromso$inntekt)+ # beregner Gini
+  labs (x="andel av befolkningen", y= "Andel av inntekt", title = "Lorenz-kurve, Tromsø kommune 2015")+
+  theme_minimal()
+```
+
+Figur etter skatt
+
+```{r}
+library(gglorenz)
+tromso <- filter(skatt_troms_2015, kommnr == "1902")
+
+#Lager figur med nettolønn
+
+ggplot(tromso, aes(nettolønn)) + 
+  stat_lorenz() +
+  annotate_ineq(tromso$nettolønn) + 
+  labs(x = "Andel av befolkningen", y = "Andel av nettoinntekt", title = "Lorenz-kurve for Tromsø 2015, etter skatt") +
+  theme_minimal()
+
+  
+```
