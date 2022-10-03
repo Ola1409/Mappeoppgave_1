@@ -2,7 +2,7 @@
 title: "mappeoppgave"
 format: html
 editor: visual
-author: Ola Frivold Berg
+author: Ola Frivold Berg & Isak Jussila 
 ---
 
 ## OPPGAVE 1
@@ -15,9 +15,13 @@ author: Ola Frivold Berg
 
 ## OPPGAVE 2
 
-*2a) Forklar hvordan gini-koeffisientene beregnes og hvordan de bør tolkes.* P90/P10 måler forholdet mellom det øverste og laveste desilet. Altså de 10% høyeste inntektene mot 10% laveste. S80S20 er på sin side forholdet mellom gjennomsnittet av de 20% høyeste inntektene mot de 20% laveste inntektene.
+*2a) Forklar hvordan gini-koeffisientene beregnes og hvordan de bør tolkes.*
 
-2b) Man kan stille spørsmål ved populasjonen - liten/stor. Reflekterer ikke de strukturelle endringene eller forholdene i et samfunn.
+Gini-koeffisientene bergnes ved å målet den totale inntekten og formuen til en befolkning og måler hvordan den er delt utover befolkningen. Det måles i et tall mellom 0-1 hvor 0 betyr at alt er likt fordelt og 1 betyr at kun en person har alt. I dette tilfelle er det norges befolkning og vi har 3 ulike målinger på Gini-koeffisienten mellom 2008-2019: Gini (disponibel inntekt, etter skatt og bankoverføringer), Gini (Markeds inntekt, før skatt og bankoverføringer) og Gini (Brutto inntekt, før skatt).
+
+P90/P10 måler forholdet mellom det øverste og laveste desilet., men tar bort ekstreme verdier. P90/P10 tar verdien rett over P90 og rett over P10, så de ekstreme verdiene blir utelatt. S80S20 er på sin side forholdet mellom gjennomsnittet av de 20% høyeste inntektene mot de 20% laveste inntektene.
+
+2b) Man kan stille spørsmål ved populasjonen, om den er for liten for eksempel. Reflekterer ikke de strukturelle endringene eller forholdene i et samfunn. Tar ikke med institusjoner.
 
 ## OPPGAVE 3
 
@@ -49,29 +53,34 @@ oecd_n %>% # data
   theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
 ```
 
+Figuren viser oss 3 forskjellige målinger av Gini i 3 forskjellige grupper. På y-aksen ser man Gini-verdi mellom 0.2-0.6 og på x-aksen ser man utviklingen i Gini fra 2008-2018 på de 3 ulike gruppene (Alle, Arbeidere og Pensjonerte). GINI (rød plot) viser netto innntekt etter skatt og bankoverføringer. GINIB (grønn plot) viser markeds inntekt før skatt og bankoverføringer. GINIG (blå plot) viser brutto inntekt før skatt.
+
 3a.1) Hva viser Gini-målene om utviklingen av ulikhet i Norge?
 
-SVAR
+-   Gini-målene viser at de siste 10 årene har det vært en liten økning i ulikhet i Norge.
 
 3a.2) Hvordan forklarer man eventuelle forskjeller mellom gini-koeffisientene?
 
-SVAR
+-   Eventuelle forskjeller mellom de tre Gini-koeffisientene er primært hva de måler. For eksempel ser man at Gini-koeffisienten på GINIB er betraktelig høyere på alle 3 gruppene, dette viser oss hvordan skatt kan være med å minke forskjellene ettersom GINI som er etter skatt viser en lavere Gini-verdi.
 
 3a.3) Er det forskjeller i ulikhet mellom arbeidere og pensjonister?
 
-SVAR
+-   Man kan se at det er forskjeller i ulikhet mellom arbeidere og pensjonister, spesielt på GINIB. Dette er mest sansynlig fordi en svært liten andel av pensjonister har aksjeutbytte osv som øker markedsintekten.
 
 3a.4) Hvilken rolle spiller samfunnets institusjoner, for eksempel skatte- og pensjonssystemet, for utjevning mellom arbeidere og pensjonister?
 
-SVAR
+-   Institusjonen kan utjevne forskjeller på arbeidere og pensjonister ved å ha et skattesystem og pensjonssystem slik som vi har i norge der arbeiderene skattes, mens pensjonistene får tilbake noe av det de har skattet som arbeidere i form av pensjon. Dette gjør at alle som pensjonere seg vet at de får en viss andel av det de har fått som arbeidere og da ikke utgjøre store froskjeller siden de ofte har nedbetalt gjeld osv.
 
 ## OPPGAVE 3b
 
 ```{r}
 oecd_n %>% # data
   filter(MEASURE == c("P90P10", "S80S20")) %>% #velger ut P90P10 og S80S20
+  filter(AGE %in% c("WA","OLD")) %>%
   ggplot(aes(x = Year, y=Value, color=MEASURE))+ # definerer akseverdier
+  
   geom_point()+ # plott som punkt
+  
   scale_x_continuous(breaks=c(2008, 2010, 2012, 2014, 2016, 2018))+ # unngår at årstall blir gjort om til desimal
   labs (title = "", y = "Gini-verdi", x = "År")+ # tittel på figuren og benevning av aksene
   facet_wrap(~ factor (AGE, (levels=c("WA", "OLD"))), #endrer til bare arbeidere og pensjonister
@@ -80,6 +89,8 @@ oecd_n %>% # data
                            "OLD" = "Pensjonert")))+ # tilpass tittel på panelene
   theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
 ```
+
+Svaret er ganske likt, det er en større ulikhet mellom arbeidere enn pensjonister. Ulikheten blant pensjonister vokser langt fra like raskt som hos arbeiderne, pensjon kommer på et jevnere nivå enn lønn hos arbeiderne og bidrar til mindre forskjeller blant pensjonister. Det er tydelig at det nest øverste desilet som bidrar til S80 tjener godt, for forholdet S80S20 er i følge figuren skjevfordelt i større grad enn P90/P10.
 
 ## OPPGAVE 4
 
@@ -94,11 +105,10 @@ skatt_troms_2015 <- url %>%
 
 #filtrerer for Tromsø
 tromso <-  filter(skatt_troms_2015, kommnr == "1902") %>%
-  mutate(nettolønn = inntekt-skatt) 
+  mutate(nettolønn = inntekt-skatt)
 
-#Setter negative verdier til 0
-tromso <- nettolønn
-  nettolønn[nettolønn < 0] <- 0
+tromso$nettolønn[tromso$nettolønn < 0] <- 0
+
   
 ```
 
@@ -116,6 +126,8 @@ ggplot(aes(x = fodt)) +
   scale_y_continuous(labels = scales::comma) #For å få vanlig heltall på y-akse
          
 ```
+
+Vi har prøvd å vise hvordan skattesystemet virker ved å bruke farger som gir tydelig fremstilling av datapunktene. De lyseblå punktene er mye jevnere fordelt og det er færre ekstreme verdier. Dette viser hvordan skattesystemet som institusjon hjelper med å holde ulikhetene lavere enn før skatt.
 
 ## OPPGAVE 4b
 
@@ -160,7 +172,7 @@ df <- df %>%
 
 
 df %>% 
-  ggplot(aes(x=Persentil,y=nettolønn/1000)) +
+  ggplot(aes(x=Persentil,y=nettolønn/1000)) + #Bytter inntekt med nettolønn
   geom_col()+
   labs (title = "Inntektsfordeling i Tromsø 2015 (etter skatt)",
         y = "Inntekt (1000kr)", x= "Persentil")+
@@ -177,25 +189,20 @@ Før skatt:
 #Laster inn pakken gglorenz
 library(gglorenz)
 
-#Filtrerer for Tromsø
-tromso <-filter(skatt_troms_2015, kommnr == "1902")
-
 #Lager figur
 ggplot(tromso, aes(inntekt))+
   stat_lorenz()+ # tegner Lorenz
-  annotate_ineq(tromso$inntekt)+ # beregner Gini
+  annotate_ineq(tromso$inntekt)+# beregner Gini
   labs (x="andel av befolkningen", y= "Andel av inntekt", title = "Lorenz-kurve, Tromsø kommune 2015")+
   theme_minimal()
+
 ```
 
 Figur etter skatt
 
 ```{r}
-library(gglorenz)
-tromso <- filter(skatt_troms_2015, kommnr == "1902")
 
 #Lager figur med nettolønn
-
 ggplot(tromso, aes(nettolønn)) + 
   stat_lorenz() +
   annotate_ineq(tromso$nettolønn) + 
@@ -203,4 +210,29 @@ ggplot(tromso, aes(nettolønn)) +
   theme_minimal()
 
   
+```
+
+Vi kan se at Gini-koeffisenten for Tromsø i 2015 er litt høyere sammenlignet med Norge på landsbasis. Dette kan være på grunn av flere årsaker som for eksempel som at flere tok aksjeutbytte. Om en ser på skattelistene for Tromsø i årene før 2015 kan man se at de med topp 10 høyest inntekt hadde betraktlig høyere lønn enn majoriteten av årene før. Kilde: (VG Skattelister, Jari Bakken, Jarle Brenna og Einar Otto Stangvik. 2016)
+
+Litteraturliste:
+
+https://www.vg.no/spesial/skattelister/2015/1902/
+
+```{r}
+##Bare notater
+
+oecd_n <- filter(oecd_n, MEASURE == "GINI")
+
+#Lager figur med nettolønn
+ggplot(oecd_n, aes(GINI)) + 
+  stat_lorenz() + 
+  labs(x = "Andel av befolkningen", y = "Andel av nettoinntekt", title = "Lorenz-kurve for Tromsø 2015, etter skatt") +
+  theme_minimal()
+```
+
+For å holde på den
+
+```{r}
+#Filtrerer for Tromsø
+tromso <-filter(skatt_troms_2015, kommnr == "1902")
 ```
