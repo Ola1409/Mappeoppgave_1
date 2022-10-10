@@ -1,0 +1,327 @@
+---
+title: "SOK-1004, høst 2022, Mappeoppgave"
+output: true
+editor: visual
+author: 578294 & 245 
+echo: true
+format: pdf
+---
+
+## OPPGAVE 1
+
+1a) Hva menes med inntektsulikhet i et land?
+
+-   Inntektsulikhet i et land er en del av den økonomiske ulikheten i et land. Når en snakker om økonomisk ulikhet, snakker man ofte om inntektsulikhet og formuesulikhet. Økende inntektsulikheter kommer i stor grad av at de som tjener høyest tjener mer og de laveste tjener mindre. LO beskriver inntektsulilkhet slik: "Inntektsulikhet sier noe om ulikhetene mellom hva folk tjener i løpet av en avgrenset tidsperiode, ofte ett år".
+
+1b) Hva er mulige grunner til at inntekten er fordelt ulikt i samfunnet?
+
+-   Inntektsulikhetene i samfunnet kan skyldes flere ting. Utdanning har mye å si. Det er for eksempel en del som ikke har utdanning. For disse var det greiere å få jobb tidligere, da det var mye håndarbeid teknologien ikke kunne gjøre. Maskiner har nå tatt over store deler av jobbene til denne gruppen av samfunnet og for nettopp denne gruppen er det nå vanskelig å finne arbeid. Inntektsulikheten mellom folk som jobber og folk som ikke jobber eller går på trygd er naturligvis stor. Utdanningsnivå og type utdanning har i tillegg noe å si for hvilke jobbmuligheter og lønningsnivå man kan ende opp med.
+
+-   Deregulering av arbeidsmarkedet har gitt et mer flytende, fleksibelt arbeidsmarked hvor relokering av ressurser skjer langt fortere enn før. Det er blitt et friere lovverk for at markedet skal være effektivt. Dette har ført til at store, produktive aktører blir større og større og tar mer av markedet (Dabla-Norris, Kochhar, Suphaphiphat, Ricka, Tsounta 2015, IMF - Income inequality, Side 21). Bevis fra flere store utvalg fra populasjoner viser at grep som sikrer arbeiderne i større grad bidrar til å bedre inntektsfordelingen. Eksempler på dette er minstelønn, fagforeninger og andre sosiale sikkerhetsnett (Calderón and Chong 2009; OECD 2011).
+
+1c) Hvilke konsekvenser kan ulikhet i inntektsfordelingen føre til?
+
+-   Det finnes ikke en direkte årssakssammenheng mellom inntekt og et bedre liv. Men en høyere inntekt gir større sannsynlighet for å dekke flere og flere menneskelige behov og å kunne forsørge lettere, som kan gi bedre livstilfredshet. Dette kan resultere i et liv som varer lenger og er lettere å leve enn andre. Større inntektsulikheter innad i et samfunn gir misnøye og mistillit. Når det kan være vanskelig for folk å leve et godt liv uten så mye å rutte med, kan det være enkelt å rette blikket mot de som styrer landet. "... økende mistillit kunne bidra til et mer fragmentert politisk landskap, med økende polarisering der det kan bli vanskeligere å komme til enighet (...) Det kan se ut til at det er hold i dette fordi flere og flere stemmer nasjonalistiske partier ved større inntektsulikheter". (NHO 2018)
+
+-   På den andre siden kan en finne at økonomisk ulikhet ikke nødvendigvis bare er dårlig for samfunnet. For på det generelle plan kan økonomisk ulikhet gi solide insentiver for folk til å konkurrere, skape og jobbe hardt for å få en større del av inntektsfordelingen. Dette gagner også landet en bor i, fordi dette skaper verdi, nyvinninger, innovasjon og et konkurrerende næringsliv hvor bedrifter pusher hverandre (Dabla-Norris, Kochhar, Suphaphiphat, Ricka, Tsounta 2015, IMF - Income inequality, Side 6).
+
+    Dette er igjen på et generelt plan, og da er det kun snakk om ulikhet, hvor stor er ikke definert. Både OECD og IMF har gjort undersøkelser hvor de har funnet ut at høy inntektsulikhet, men også vedvarende moderat inntektsulikhet fører til lav økonomisk vekst, eller i andre tilfeller stagnasjon. For eksempel nevner OECD at økende ulikhet i 20 år i Mexico og New Zealand førte til at de gikk glipp av 10% økonomisk vekst før den store resesjonen.
+
+-   Større inntektsulikhet som gir økonomisk ulikhet har vist seg å undergrave folks og særlig unge sine individuelle muligheter og valg utdanning. Dette er både IMF og OECD enige om. Dette legger begge kildene stor vekt på når de forklarer sammenhengen mellom økonomisk og sosial ulikhet.
+
+## OPPGAVE 2
+
+*2a) Forklar hvordan gini-koeffisientene beregnes og hvordan de bør tolkes.*
+
+-   Gini-koeffisienten bergnes ved å måle den totale inntekten og formuen til en befolkning og sier noe om hvordan den er fordelt utover befolkningen. Matematisk beregnes den ved A/(A+B), hvor A er området over lorenz-kurven og B er under. Figur er lagt ved for å tydeliggjøre. Det måles i et tall mellom 0-1 hvor 0 betyr at alt er likt fordelt og 1 betyr at kun en person har alt. Denne oppgaven har 3 ulike målinger på Gini-koeffisienten mellom 2008-2019: Gini (disponibel inntekt, etter skatt og bankoverføringer), Ginib (Markeds inntekt, før skatt og bankoverføringer) og Ginim (Brutto inntekt, før skatt).
+
+    ```{r}
+    #Sletter minnet og laster inn pakker
+    rm(list=ls())
+    library(tidyverse)
+    library(gglorenz)
+
+    url <- "https://raw.githubusercontent.com/uit-sok-1004-h22/uit-sok-1004-h22.github.io/main/data/skatt_troms_2015.RDS"
+
+    skatt_troms_2015 <- url %>%
+      url() %>%
+      gzcon() %>% 
+      readRDS()
+
+
+    ##Figur for gini og lorenz-kurve med eksempelet om Harstad
+    library(gglorenz)
+    harstad <-filter(skatt_troms_2015, kommnr == "1903")
+
+    #
+
+    ggplot(harstad, aes(inntekt))+
+      stat_lorenz()+ # tegner Lorenz
+      annotate_ineq(harstad$inntekt)+ # beregner Gini
+      labs (x="andel av befolkningen", y= "andel av inntekt", title = "Lorenz-kurve, Harstad kommune 2015")+
+      geom_vline(xintercept = 1) +
+      geom_hline(yintercept = 0) +
+      geom_abline() +
+      geom_text(x = 0.30, y = 0.70,
+              label = "Total lik fordeling av inntekt (Stigningstall = 1)")+
+      geom_text(x = 0.725, y = 0.55, label = "A", size =  5) +
+      geom_text(x = 0.85, y = 0.30, label = "B", size = 5) +
+      geom_text(x = 0.52, y = 0.30, label = "Lorenz-kurve", angle = 30) +
+      theme_minimal()
+    ```
+
+-   P90/P10 måler forholdet mellom det øverste og laveste persentilet. P90/P10 tar verdien rett over P90 og rett under P10, så de ekstreme verdiene blir utelatt. Dette forholdstallet viser hvor mye mer en i øverste desil tjener enn en i laverste desil. "SSB målte P90/P10 til 2,83 i 2017, når personer i studenthusholdninger ble ekskludert" (Epland, Tuv, SSB, 2019). S80S20 er på sin side forholdet mellom gjennomsnittet av de 20% høyeste inntektene mot de 20% laveste inntektene.
+
+2b) Diskuter svakheter og styrker med disse målene på ulikhet. I hvilke situasjoner er hvert mål mest relevant?
+
+-   Man kan stille spørsmål ved populasjonen, om den er for liten for eksempel. Reflekterer ikke de strukturelle endringene eller forholdene i et samfunn. Tar ikke med institusjoner. Gini-koeffisienten er fin å bruke over tid for å se om det blir mindre ulikhet, det er også lett å se i forhold til andre land. Innad i et land er det derimot for lett å bruke gini-koeffisienten alene, fordi den viser ikke fordelingen av ulikhet, altså hvilke grupper som har mye og lite. Den viser bare ett tall for landet. Lorenz-kurven hjelper til her og viser fordelingen av inntekt.
+
+    P90/P10 tar bort ekstreme verdier og viser ofte en jevnere inntektsulikhet over tid.
+
+## OPPGAVE 3
+
+```{r}
+
+#Laster inn datasettet som jeg kaller oecd_n
+url <- "https://raw.githubusercontent.com/uit-sok-1004-h22/uit-sok-1004-h22.github.io/main/data/oecd_data_nor.csv"
+
+oecd_n <- url %>% 
+  read_csv()
+
+```
+
+```{r}
+oecd_n %>% # data
+  filter(MEASURE %in% c("GINI", "GINIB", "GINIG")) %>% #velger ut gini-koeffisienter med vektor
+  ggplot(aes(x = Year, y=Value, color=MEASURE))+ # definerer akseverdier
+  geom_point()+ # plott som punkt
+  scale_x_continuous(breaks=c(2008, 2011, 2015, 2018))+ # unngår at årstall blir gjort om til desimal
+  labs (title = "Gini-koeffisienter for befolkningen i Norge, 2008-2019", y = "Gini-verdi", x= "År")+ # tittel på figuren og benevning av aksene
+  facet_wrap(~ factor (AGE, (levels=c("TOT", "WA", "OLD"))), # lag tre paneler etter alder i fornuftig rekkefølge med passende titler 
+                       labeller = as_labeller(
+                         c("TOT" = "Alle", 
+                           "WA" = "Arbeidere", 
+                           "OLD" = "Pensjonert")))+ # tilpass tittel på panelene
+  theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
+```
+
+Figuren viser oss 3 forskjellige målinger av Gini i 3 forskjellige grupper. På y-aksen ser man Gini-verdi mellom 0.2-0.6 og på x-aksen ser man utviklingen i Gini fra 2008-2018 på de 3 ulike gruppene (Alle, Arbeidere og Pensjonerte). GINI (rød plot) viser netto innntekt etter skatt og bankoverføringer. GINIB (grønn plot) viser markeds inntekt før skatt og bankoverføringer. GINIG (blå plot) viser brutto inntekt før skatt. Utbytteskatten økte i 2016.
+
+3a.1) Hva viser Gini-målene om utviklingen av ulikhet i Norge?
+
+-   Gini-målene viser at de siste 10 årene har det vært en jevn trend mellom alle gini-koeffisienter. Alle har et lite hopp i 2015 for da var det mange som tok ut aksjeutbytte på grunn av den ventede økningen i skatt på aksjeutbytte kom til å tre i kraft i 2016.
+
+3a.2) Hvordan forklarer man eventuelle forskjeller mellom gini-koeffisientene?
+
+-   Eventuelle forskjeller mellom de tre Gini-koeffisientene er primært hva de måler. For eksempel ser man at Gini-koeffisienten på GINIB er betraktelig høyere på alle 3 gruppene, dette viser oss hvordan skatt og overføringer kan være med å minke forskjellene, ettersom GINI som er etter skatt, viser en lavere Gini-verdi.
+
+3a.3) Er det forskjeller i ulikhet mellom arbeidere og pensjonister?
+
+-   Man kan se at det er forskjeller i ulikhet mellom arbeidere og pensjonister, spesielt på GINIB. Dette er mest sansynlig fordi en svært liten andel av pensjonister har aksjeutbytte osv som øker markedsinntekten. Det er også en del minstepensjonister, og de får ikke noe annet enn utbetalt pensjon, derfor har de få som har en annen inntektskilde mye mer av inntektsfordelingen før skatt og pensjon.
+
+3a.4) Hvilken rolle spiller samfunnets institusjoner, for eksempel skatte- og pensjonssystemet, for utjevning mellom arbeidere og pensjonister?
+
+-   Institusjonen kan utjevne forskjeller på arbeidere og pensjonister ved å ha et skattesystem og pensjonssystem slik som vi har i norge der arbeiderene skattes, mens pensjonistene får tilbake noe av det de har skattet som arbeidere i form av pensjon. Dette gjør at alle som pensjonere seg vet at de får en viss andel av det de har fått som arbeidere og da ikke utgjøre store forskjeller siden de ofte har nedbetalt gjeld osv. Mye av dette går i den progressive skatten, trinnskatten som øker i takt med inntekten til en person. I tillegg til Folketrygden som er en obligatorisk trygdeordning for alle personer som er bosatt i Norge. Den gir for eksempel alderspensjon for "alle som har bodd i Norge i minst tre år fra fylte 16 år" (Mæland, Hatland, Pedersen, Folketrygden, Store Norske Leksikon, 2022) og innebærer "en kontantytelse som kommer til utbetaling fra en viss alder og livet ut (Pedersen, Alderpensjon, Store Norske Leksikon, 2022)". Vanlig pensjonsalder i Norge er 67 år og med det vanlig start for alderpensjon.
+
+## OPPGAVE 3b
+
+```{r}
+oecd_n %>% # data
+  filter(MEASURE %in% c("P90P10", "S80S20")) %>% #velger ut P90P10 og S80S20
+  filter(AGE %in% c("WA","OLD")) %>%
+  ggplot(aes(x = Year, y=Value, color=MEASURE))+ # definerer akseverdier
+  
+  geom_point()+ # plott som punkt
+  
+  scale_x_continuous(breaks=c(2008, 2010, 2012, 2014, 2016, 2018))+ # unngår at årstall blir gjort om til desimal
+  labs (title = "", y = "Gini-verdi", x = "År")+ # tittel på figuren og benevning av aksene
+  facet_wrap(~ factor (AGE, (levels=c("WA", "OLD"))), #endrer til bare arbeidere og pensjonister
+                       labeller = as_labeller(
+                         c("WA" = "Arbeidere", 
+                           "OLD" = "Pensjonert")))+ # tilpass tittel på panelene
+  theme(legend.position = "bottom") # flytt legende for at størrelsen på plottene blir bra
+```
+
+Svaret er ganske likt, det er en større ulikhet mellom arbeidere enn pensjonister. Ulikheten blant pensjonister vokser langt fra like raskt som hos arbeiderne, pensjon kommer på et jevnere nivå enn lønn hos arbeiderne og bidrar til mindre forskjeller blant pensjonister. Det er tydelig at det nest øverste desilet som bidrar til S80 tjener godt, for forholdet S80S20 er i følge figuren skjevfordelt i større grad enn P90/P10.
+
+## OPPGAVE 4
+
+```{r}
+#
+url <- "https://raw.githubusercontent.com/uit-sok-1004-h22/uit-sok-1004-h22.github.io/main/data/skatt_troms_2015.RDS"
+
+skatt_troms_2015 <- url %>%
+  url() %>%
+  gzcon() %>% 
+  readRDS()
+
+#filtrerer for Tromsø
+tromso <-  filter(skatt_troms_2015, kommnr == "1902") %>%
+  mutate(nettoinntekt = inntekt-skatt)
+
+tromso$nettoinntekt[tromso$nettoinntekt < 0] <- 0
+
+  
+```
+
+## OPPGAVE 4a
+
+```{r}
+#Lager figur med gjennomsiktighet
+tromso %>%
+ggplot(aes(x = fodt)) +
+  #Geom_point med to forskjellige y-verdier
+  geom_point(aes(y = inntekt), color = "blue")+  
+  
+  geom_point(aes(y = nettoinntekt),
+             color = "light blue", alpha = 0.5) +
+  
+  ggtitle("Inntekt (Mørkblå) og Nettoinntekt (Lysblå med gjennomsiktighet)") + #Tittel
+  
+  ylab("Verdi") +  #Aksetittel
+  xlab("Fødselsår") +
+  
+  scale_y_continuous(labels = scales::comma) #For å få vanlig heltall på y-akse
+
+##Lager figur uten gjennomsiktighet
+tromso %>%
+ggplot(aes(x = fodt)) +
+  #Geom_point med to forskjellige y-verdier
+  geom_point(aes(y = inntekt), color = "blue")+  
+  
+  geom_point(aes(y = nettoinntekt),
+             color = "light blue") +
+  
+  ggtitle("Inntekt (Mørkblå) og Nettoinntekt (Lysblå uten gjennomsiktighet)") + #Tittel
+  
+  ylab("Verdi") +  #Aksetittel
+  xlab("Fødselsår") +
+  
+  scale_y_continuous(labels = scales::comma) #For å få vanlig heltall på y-akse
+         
+```
+
+Vi har prøvd å vise hvordan skattesystemet virker ved å bruke farger som gir tydelig fremstilling av datapunktene. De lyseblå punktene er mye jevnere fordelt og det er færre ekstreme verdier. Dette viser hvordan skattesystemet som institusjon hjelper med å holde ulikhetene lavere enn før skatt. Alpha er brukt til å gjøre de lyseblå punktene mindre dekkende for de blå punktene, der de ligger over hverandre. Dette gjør at leseren må være litt observant fordi det kan se ut til at beskatningen er litt hardere enn den egentlig er.
+
+## OPPGAVE 4b
+
+```{r}
+#Kode fra oppgavetekst, men endrer til df_inntekt
+df_inntekt <- tromso %>%
+  select(inntekt) %>% 
+  quantile(probs = seq(0,1, .01), na.rm=TRUE)
+
+
+df_inntekt <- as_tibble(df_inntekt)
+
+df_inntekt <- df_inntekt %>% 
+  add_column(Persentil=c(0:100))
+
+df_inntekt <- df_inntekt %>% 
+  rename(inntekt_fr_skatt=value)
+
+
+df_inntekt %>% 
+  ggplot(aes(x=Persentil,y=inntekt_fr_skatt/1000)) +
+  geom_col()+
+  labs (title = "Inntektsfordeling i Tromsø 2015 (fr skatt)",
+        y = "Inntekt (1000kr)", x= "Persentil")+
+  theme_minimal()
+```
+
+Tilsvarende figur for inntekt etter skatt:
+
+```{r}
+#Kode fra oppgavetekst, endrer til nettoinntekt
+df_netto <- tromso %>%
+  select(nettoinntekt) %>% 
+  quantile(probs = seq(0,1, .01), na.rm=TRUE)
+
+
+df_netto <- as_tibble(df_netto)
+
+df_netto <- df_netto %>% 
+  add_column(Persentil=c(0:100))
+
+df_netto <- df_netto %>% 
+  rename(nettoinntekt=value)
+
+
+df_netto %>% 
+  ggplot(aes(x=Persentil,y=nettoinntekt/1000)) + #Bytter inntekt med nettoinntekt
+  geom_col()+
+  labs (title = "Inntektsfordeling i Tromsø 2015 (etter skatt)",
+        y = "Inntekt (1000kr)", x= "Persentil")+
+  theme_minimal() 
+```
+
+Fra disse bildene kan en se at det ikke er stor forskjell på forskjell på fordelingen før og etter skatt. Men det er tydelig at det øverste persentilet har fått en tydelig redusering i lønn på grunn av skatt. Det øverste persentilet tjener veldig mye mer enn alle andre persentiler, men bak der er det ganske jevnt og ikke enorme inntektsulikheter.
+
+Figur med tydeliggjøring av ulikhetene mellom de lavere persentilene:
+
+```{r}
+
+##Merger for å få figur med to datasett
+merge(df_inntekt, df_netto) %>%
+     ggplot(aes(x=Persentil)) +
+    #Lager to forskjellige typer plot for å tydelig vise forskjell
+    geom_col(aes(y=nettoinntekt/1000, color = "red", fill = "nettoinntekt")) +
+  
+    geom_line(aes(y=inntekt_fr_skatt/1000, color = "light blue", fill = "inntekt")) +
+
+    labs (title = "Inntektsfordeling i Tromsø 2015 (før og etter skatt)",
+          y = "Inntekt (1000kr)", x = "Persentil") +
+    theme_minimal() +
+    #Forklaring av farger nederst i figuren
+    theme(legend.position = "bottom") +
+    #Tar bort tittelen på legends nederst, her: fill
+    theme(legend.title = element_blank()) +
+    #Tar bort unødvendige legends som bare sier hvilken farge plottene har
+    guides(color = FALSE) +
+    #Setter grense på y-aksen
+    ylim(0, 2000)
+```
+
+For å gjøre det lettere å se forskjell på de andre persentilene har vi i tillegg laget en ny figur med grense på y-aksen, 2 millioner. På denne måten er det lettere å se de andre persentilenes verdi fordi det øverste persentilets ekstreme verdi er gjort mindre. Det er dog viktig å presisere at inntektsfordelingen ikke er slik, dette er som sagt kun gjort for å tydeliggjøre forskjellene mellom de andre enn det øverste persentilet.
+
+## OPPGAVE 4c
+
+Gini-koeffisient og lorenz-kurve, før og etter skatt for Tromsø kommune.
+
+```{r}
+#Laster inn pakken gglorenz
+library(gglorenz)
+
+#Lager figur med inntekt
+ggplot(tromso, aes(inntekt))+
+  stat_lorenz()+ # tegner Lorenz
+  annotate_ineq(tromso$inntekt) + # beregner Gini
+  labs (x="andel av befolkningen", y= "Andel av inntekt", title = "Lorenz-kurve for Tromsø kommune 2015, før skatt")+
+  theme_minimal()
+
+#Lager akkurat samme figur med hensyn på nettoinntekt istedet
+ggplot(tromso, aes(nettoinntekt)) + 
+  stat_lorenz() +
+  annotate_ineq(tromso$nettoinntekt) + 
+  labs(x = "Andel av befolkningen", y = "Andel av nettoinntekt", title = "Lorenz-kurve for Tromsø kommune 2015, etter skatt") +
+  theme_minimal()
+
+```
+
+Norge hadde i 2015 en Gini-koeffisient på 0,272. Vi kan se at Gini-koeffisenten for Tromsø i 2015 er høyere sammenlignet med Norge på landsbasis. Dette kan være på grunn av flere årsaker som for eksempel som at flere tok aksjeutbytte. Om en ser på skattelistene for Tromsø i årene før 2015 kan man se at de med topp 10 høyest inntekt hadde betraktlig høyere lønn enn majoriteten av årene før. Kilde: (VG Skattelister, Jari Bakken, Jarle Brenna og Einar Otto Stangvik. 2016)
+
+Tromsø sine relative verdier er veldig høye, nettopp fordi de har mindre befolkning og det skapes store summer av økonomisk verdi. Dette kan ha å gjøre med at mye av fiske- og havnæringen befinner seg der. Dette er en industri som har tjent hele Norge godt og dette bidrar til høy økonomisk verdi i Tromsø. "Big fish, small pond" er et engelsk ordtak som kan brukes for å beskrive noe av Tromsø sin økonomiske ulikhet. Når så store verdier skapes på et mindre sted er det naturlig at det er store aktører som sitter igjen med mye, og at andre får mindre i fordelingen av inntekt.
+
+## Litteraturliste:
+
+https://www.lo.no/globalassets/okonomi-og-samfunn/samfunnsnotat-nr-3.-21---litt-om-okonomisk-ulikhet-og-tilknyttede-utfordringer.pdf
+
+https://www.imf.org/external/pubs/ft/sdn/2015/sdn1513.pdf
+
+https://www.oecd.org/newsroom/inequality-hurts-economic-growth.htm
+
+https://snl.no/folketrygden
+
+https://snl.no/alderspensjon
+
+https://www.vg.no/spesial/skattelister/2015/1902/
